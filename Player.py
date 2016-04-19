@@ -55,6 +55,7 @@ class Player:
             #try the move
             opp = Player(self.opp, self.type, self.ply)
             s = opp.minValue(nb, ply-1, turn)
+            print "move: {}score : {}".format(m, s)
             #and see what the opponent would do next
             if s > score:
                 #if the result is better than our best score so far, save that move,score
@@ -131,7 +132,7 @@ class Player:
     # and/or a different move search order.
     def alphaBetaMove(self, board, ply):
         """ Choose a move with alpha beta pruning.  Returns (score, move) """
-        print "Alpha Beta Move not yet implemented"
+        #print "Alpha Beta Move not yet implemented"
         #returns the score adn the associated moved
         move = -1
         score = -INFINITY
@@ -148,7 +149,8 @@ class Player:
             nb.makeMove(self, m) #test each move
             #try the move
             opp = Player(self.opp, self.type, self.ply)
-            s = opp.minAb(nb, ply-1, turn, self.score(nb))
+            s = opp.minAb(nb, ply-1, self.score(nb))
+            print "move: {}score : {}".format(m, s)
             #and see what the opponent would do next
             if s > score:
                 #if the result is better than our best score so far, save that move,score
@@ -157,13 +159,13 @@ class Player:
         #return the best score and move so far
         return score, move
 
-    def minAb(state, ply, leftmost):
+    def minAb(self, state, ply, leftmost):
         #state of game
         #alpha, the value of the best alternative for MAX along the path of state
         # beta  ^ MIN
         if leftmost > self.score(state):
             ply -= 1
-            maxAb(state, ply, leftmost)
+            self.maxAb(state, ply, leftmost)
         # else:
         #     if state.gameOver():
         #         return self.score(state)
@@ -174,27 +176,26 @@ class Player:
         #         utility = maxAb()
         #         if score > utility:
         #             score = utility
-        if board.gameOver():
-            return turn.score(board)
+        if state.gameOver():
+            return turn.score(state)
         score = leftmost
-        for m in board.legalMoves(self):
+        for m in state.legalMoves(self):
             if ply == 0:
-                #print "turn.score(board) in min Value is: " + str(turn.score(board))
-                return turn.score(board)
+                #print "turn.score(state) in min Value is: " + str(turn.score(state))
+                return turn.score(state)
             # make a new player to play the other side
             opponent = Player(self.opp, self.type, self.ply)
-            # Copy the board so that we don't ruin it
-            nextBoard = deepcopy(board)
+            # Copy the state so that we don't ruin it
+            nextBoard = deepcopy(state)
             nextBoard.makeMove(self, m)
-
+            #using this as a cutoff
             if self.score(nextBoard) <= score:
                 score = self.score(nextBoard)
                 opp = Player(self.opp, self.type, self.ply)
                 s = opponent.maxAb(nextBoard, ply-1, score)    
             else:
                 continue # we prune
-
-
+                print m
             #print "s in minValue is: " + str(s)
             if s < score:
                 score = s
@@ -208,8 +209,39 @@ class Player:
         if len(state.legalMoves(self)) ==0:
             return self.score(state)
 
-    def maxAb(state,alpha,beta):
 
+
+    def maxAb(self, state, ply, leftmost):
+                #state of game
+        #alpha, the value of the best alternative for MAX along the path of state
+        # beta  ^ MIN
+        if leftmost < self.score(state):
+            ply -= 1
+            self.minAb(state, ply, leftmost)
+        if state.gameOver():
+            return turn.score(state)
+        score = leftmost
+        for m in state.legalMoves(self):
+            if ply == 0:
+                #print "turn.score(state) in min Value is: " + str(turn.score(state))
+                return turn.score(state)
+            # make a new player to play the other side
+            opponent = Player(self.opp, self.type, self.ply)
+            # Copy the state so that we don't ruin it
+            nextBoard = deepcopy(state)
+            nextBoard.makeMove(self, m)
+
+            if self.score(nextBoard) > score:
+                score = self.score(nextBoard)
+                opp = Player(self.opp, self.type, self.ply)
+                s = opponent.maxAb(nextBoard, ply-1, score)    
+            else:
+                continue # we prune
+            #print "s in minValue is: " + str(s)
+            if s < score:
+                score = s
+
+        return score
 
 
 
@@ -259,13 +291,14 @@ class MancalaPlayer(Player):
         # Currently this function just calls Player's score
         # function.  You should replace the line below with your own code
         # for evaluating the board
-        
-        print "Calling score in MancalaPlayer"
-        if self.num == 1:
-            print board.scoreCups
+        if (board.scoreCups[0]+ board.scoreCups[1]) == 0:
+            return 0
+        #print "Calling score in MancalaPlayer"
+        elif self.num == 1:
+            #print board.scoreCups
             return (float(board.scoreCups[1])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
         elif self.num == 2:
-            print board.scoreCups
+            #print board.scoreCups
             return (float(board.scoreCups[1])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
 
 

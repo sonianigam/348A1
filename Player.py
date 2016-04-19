@@ -1,5 +1,5 @@
 # File: Player.py
-# Sonia Nigam snk088, Amar Shah, Armaan Shah
+# Sonia Nigam snk088, Amar Shah, Armaan Shah asf408
 # Date:
 # Group work statement: <please type the group work statement
 #      given in the pdf here>
@@ -133,8 +133,86 @@ class Player:
         """ Choose a move with alpha beta pruning.  Returns (score, move) """
         print "Alpha Beta Move not yet implemented"
         #returns the score adn the associated moved
-        return (-1,1)
-                
+        move = -1
+        score = -INFINITY
+        turn = self
+        for m in board.legalMoves(self):
+            #for each legal move
+            if ply == 0:
+                #if we're at ply 0, we need to call our eval function & return
+                return (self.score(board), m)
+            if board.gameOver():
+                return (-1, -1)  # Can't make a move, the game is over
+            nb = deepcopy(board) #don't want to actually make move
+            #make a new board
+            nb.makeMove(self, m) #test each move
+            #try the move
+            opp = Player(self.opp, self.type, self.ply)
+            s = opp.minAb(nb, ply-1, turn, self.score(nb))
+            #and see what the opponent would do next
+            if s > score:
+                #if the result is better than our best score so far, save that move,score
+                move = m
+                score = s
+        #return the best score and move so far
+        return score, move
+
+    def minAb(state, ply, leftmost):
+        #state of game
+        #alpha, the value of the best alternative for MAX along the path of state
+        # beta  ^ MIN
+        if leftmost > self.score(state):
+            ply -= 1
+            maxAb(state, ply, leftmost)
+        # else:
+        #     if state.gameOver():
+        #         return self.score(state)
+        #     if cutoff(state, ply):
+        #         return self.score(state)
+        #     score = INFINITY
+        #     for a,s in state.legalMoves():
+        #         utility = maxAb()
+        #         if score > utility:
+        #             score = utility
+        if board.gameOver():
+            return turn.score(board)
+        score = leftmost
+        for m in board.legalMoves(self):
+            if ply == 0:
+                #print "turn.score(board) in min Value is: " + str(turn.score(board))
+                return turn.score(board)
+            # make a new player to play the other side
+            opponent = Player(self.opp, self.type, self.ply)
+            # Copy the board so that we don't ruin it
+            nextBoard = deepcopy(board)
+            nextBoard.makeMove(self, m)
+
+            if self.score(nextBoard) <= score:
+                score = self.score(nextBoard)
+                opp = Player(self.opp, self.type, self.ply)
+                s = opponent.maxAb(nextBoard, ply-1, score)    
+            else:
+                continue # we prune
+
+
+            #print "s in minValue is: " + str(s)
+            if s < score:
+                score = s
+
+        return score
+
+
+    def cutoff():
+        if ply == 0:
+            return self.score(state)
+        if len(state.legalMoves(self)) ==0:
+            return self.score(state)
+
+    def maxAb(state,alpha,beta):
+
+
+
+
     def chooseMove(self, board):
         """ Returns the next move that this player wants to make """
         if self.type == self.HUMAN:

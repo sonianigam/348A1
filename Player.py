@@ -55,7 +55,7 @@ class Player:
             #try the move
             opp = Player(self.opp, self.type, self.ply)
             s = opp.minValue(nb, ply-1, turn)
-            print "move: {}score : {}".format(m, s)
+            print "move: {} score : {}".format(m, s)
             #and see what the opponent would do next
             if s > score:
                 #if the result is better than our best score so far, save that move,score
@@ -135,6 +135,8 @@ class Player:
         #print "Alpha Beta Move not yet implemented"
         #returns the score adn the associated moved
         move = -1
+        alpha = -INFINITY
+        beta  = INFINITY
         score = -INFINITY
         turn = self
         for m in board.legalMoves(self):
@@ -149,101 +151,60 @@ class Player:
             nb.makeMove(self, m) #test each move
             #try the move
             opp = Player(self.opp, self.type, self.ply)
-            s = opp.minAb(nb, ply-1, self.score(nb))
-            print "move: {}score : {}".format(m, s)
+            s = opp.minAb(nb, ply-1, turn, alpha, beta)
+            print "move: {} score : {}".format(m, s)
             #and see what the opponent would do next
             if s > score:
                 #if the result is better than our best score so far, save that move,score
                 move = m
                 score = s
+            alpha = max(score, alpha)
         #return the best score and move so far
         return score, move
 
-    def minAb(self, state, ply, leftmost):
+    def minAb(self, state, ply, turn, alpha, beta):
         #state of game
         #alpha, the value of the best alternative for MAX along the path of state
         # beta  ^ MIN
-        if leftmost > self.score(state):
-            ply -= 1
-            self.maxAb(state, ply, leftmost)
-        # else:
-        #     if state.gameOver():
-        #         return self.score(state)
-        #     if cutoff(state, ply):
-        #         return self.score(state)
-        #     score = INFINITY
-        #     for a,s in state.legalMoves():
-        #         utility = maxAb()
-        #         if score > utility:
-        #             score = utility
+
         if state.gameOver():
             return turn.score(state)
-        score = leftmost
+        score = INFINITY
+        opponent = Player(self.opp, self.type, self.ply)
         for m in state.legalMoves(self):
             if ply == 0:
-                #print "turn.score(state) in min Value is: " + str(turn.score(state))
                 return turn.score(state)
-            # make a new player to play the other side
-            opponent = Player(self.opp, self.type, self.ply)
-            # Copy the state so that we don't ruin it
             nextBoard = deepcopy(state)
-            nextBoard.makeMove(self, m)
-            #using this as a cutoff
-            if self.score(nextBoard) <= score:
-                score = self.score(nextBoard)
-                opp = Player(self.opp, self.type, self.ply)
-                s = opponent.maxAb(nextBoard, ply-1, score)    
+            nextBoard.makeMove(self, m)    
+            score = min(score, opponent.maxAb(nextBoard, ply-1, turn, alpha, beta))
+            if score <= alpha:
+                # print "pruning"
+                return score
             else:
-                continue # we prune
-                print m
-            #print "s in minValue is: " + str(s)
-            if s < score:
-                score = s
-
+                beta = min(beta, score)
         return score
 
-
-    def cutoff():
-        if ply == 0:
-            return self.score(state)
-        if len(state.legalMoves(self)) ==0:
-            return self.score(state)
-
-
-
-    def maxAb(self, state, ply, leftmost):
-                #state of game
+    def maxAb(self, state, ply, turn, alpha, beta):
+        #state of game
         #alpha, the value of the best alternative for MAX along the path of state
         # beta  ^ MIN
-        if leftmost < self.score(state):
-            ply -= 1
-            self.minAb(state, ply, leftmost)
+
         if state.gameOver():
             return turn.score(state)
-        score = leftmost
+        score = -INFINITY
+        opponent = Player(self.opp, self.type, self.ply)
         for m in state.legalMoves(self):
             if ply == 0:
-                #print "turn.score(state) in min Value is: " + str(turn.score(state))
                 return turn.score(state)
-            # make a new player to play the other side
-            opponent = Player(self.opp, self.type, self.ply)
-            # Copy the state so that we don't ruin it
             nextBoard = deepcopy(state)
-            nextBoard.makeMove(self, m)
-
-            if self.score(nextBoard) > score:
-                score = self.score(nextBoard)
-                opp = Player(self.opp, self.type, self.ply)
-                s = opponent.maxAb(nextBoard, ply-1, score)    
+            nextBoard.makeMove(self, m)   
+            score = max(score, opponent.minAb(nextBoard, ply-1, turn, alpha, beta))
+            if score >= beta:
+                # print "pruning"
+                return score
             else:
-                continue # we prune
-            #print "s in minValue is: " + str(s)
-            if s < score:
-                score = s
-
+                alpha = max(alpha, score)
         return score
-
-
 
     def chooseMove(self, board):
         """ Returns the next move that this player wants to make """
@@ -265,8 +226,10 @@ class Player:
             print "chose move", move, " with value", val
             return move
         elif self.type == self.ABPRUNE:
+            val, move = self.minimaxMove(board, self.ply)
+            print "minimax would choose move", move, "with value", val
             val, move = self.alphaBetaMove(board, self.ply)
-            print "chose move", move, " with value", val
+            print "ab pruning chose move", move, " with value", val
             return move
         elif self.type == self.CUSTOM:
             # TODO: Implement a custom player
@@ -296,7 +259,7 @@ class MancalaPlayer(Player):
         #print "Calling score in MancalaPlayer"
         elif self.num == 1:
             #print board.scoreCups
-            return (float(board.scoreCups[1])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
+            return (float(board.scoreCups[0])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
         elif self.num == 2:
             #print board.scoreCups
             return (float(board.scoreCups[1])/float(board.scoreCups[0]+ board.scoreCups[1]))*100

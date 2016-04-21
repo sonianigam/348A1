@@ -265,7 +265,7 @@ class MancalaPlayer(Player):
             return 0
         elif self.num == 1:
             
-            for x in range(0,5):
+            for x in range(0,6):
                 if board.P1Cups[x] == 0 and board.P2Cups[5-x] != 0:
                     empty += 1
         
@@ -277,26 +277,17 @@ class MancalaPlayer(Player):
         
         elif self.num == 2:
 
-            for x in range(0,5):
+            for x in range(0,6):
                 if board.P2Cups[x] == 0 and board.P1Cups[5-x] != 0:
-                    print board.P2Cups[x], board.P1Cups[5-x]
                     empty += 1
 
             empty_portion = ((float(empty))/5.0) * 100
-
-            print "number of empty " + str(empty)
             endcups_portion = (float(board.scoreCups[1])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
             boardcups_portion = (float(player2marbles)/float(total_marbles))*100            
             total_score = endcups_portion * .5 + boardcups_portion * .25 + empty_portion * .25
-
-            #print endcups_portion
-            #print 'boardcups_portion'
-            #print boardcups_portion
-            print board
-            print 'empty_portion'
-            print empty_portion
-            #print total_score
-        return total_score
+            #print board
+            #print empty_portion, endcups_portion, boardcups_portion
+            return total_score
 
 
         #return Player.score(self, board)

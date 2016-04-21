@@ -8,7 +8,6 @@
 # You will also define the score function in the MancalaPlayer class,
 # a subclass of the Player class.
 
-
 from random import *
 from decimal import *
 from copy import *
@@ -255,7 +254,14 @@ class snk088(Player):
         intelligently """
 
     def score(self, board):
-        """ Evaluate the Mancala board for this player """
+        """ Evaluate the Mancala board for this player. the way we are doing our heuristic is by breaking
+        everything down into three categories. The first category is how many marbles you have on your side
+        as a percentage of how many marbles your opponent has. 
+        The next category is how marbles you have in your mancala compared to how many your opponent has
+        the lastly is how many cups of yours are empty and the opposing player has marbles in them. Then we place
+        weights on all three to calculate a new heuristic.
+        Furthermore, we also have base cases to ensure that we dont obtain a divide by 0 error but if that does happen
+        we still use two out of the other three categories to calculate our heuristic. """
         # Currently this function just calls Player's score
         # function.  You should replace the line below with your own code
         # for evaluating the board

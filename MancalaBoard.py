@@ -1,11 +1,11 @@
-# File: MancalaGame.py
+# File: MancalaBoard.py
 # Defines a game of Mancala
 # You do not need to modify this file, but if you find bugs let me know.
 #
-
 from random import *
 from copy import *
-from Player import *
+from snk088 import *
+#import snk088
 
 # some constants
 INFINITY = 1.0e400

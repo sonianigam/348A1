@@ -1,5 +1,5 @@
 # File: Player.py
-# Sonia Nigam snk088, Amar Shah, Armaan Shah asf408
+# Sonia Nigam snk088, Amar Shah ats545, Armaan Shah asf408
 # Date:
 # Group work statement: <please type the group work statement
 #      given in the pdf here>
@@ -36,7 +36,6 @@ class Player:
     def __repr__(self):
         """Returns a string representation of the Player."""
         return str(self.num)
-        
     def minimaxMove(self, board, ply):
         """ Choose the best minimax move.  Returns (score, move) """
         move = -1
@@ -248,6 +247,8 @@ class Player:
             return -1
 
 
+
+
 # Note, you should change the name of this player to be your netid
 class snk088(Player):
     """ Defines a player that knows how to evaluate a Mancala gameboard
@@ -309,5 +310,3 @@ class snk088(Player):
             #print empty_portion, endcups_portion, boardcups_portion
             return total_score
         #return Player.score(self, board)
-
-

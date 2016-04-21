@@ -254,15 +254,53 @@ class MancalaPlayer(Player):
         # Currently this function just calls Player's score
         # function.  You should replace the line below with your own code
         # for evaluating the board
+        
+        player1marbles = sum(board.P1Cups)
+        player2marbles = sum(board.P2Cups)
+        total_marbles = player1marbles + player2marbles
+        print 'board'
+        print board.P1Cups, board.P2Cups
+
         if (board.scoreCups[0]+ board.scoreCups[1]) == 0:
             return 0
         #print "Calling score in MancalaPlayer"
         elif self.num == 1:
             #print board.scoreCups
-            return (float(board.scoreCups[0])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
+            # print 'player 1'
+            empty = 0
+            for x in range(0,5):
+                if board.P1Cups[x] == 0 and board.P2Cups[5-x] != 0:
+                    empty += 1
+            # print empty
+            empty_portion = (float(empty)/5.0) * 100
+            endcups_portion = (float(board.scoreCups[0])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
+            boardcups_portion = (float(player1marbles)/float(total_marbles))*100
+            total_score = endcups_portion * .5 + boardcups_portion * .25 + empty_portion * .25
+            return total_score
         elif self.num == 2:
             #print board.scoreCups
-            return (float(board.scoreCups[1])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
+            # print 'player 2'
+            empty = 0
+            for x in range(0,5):
+                if board.P2Cups[x] == 0 and board.P1Cups[5-x] != 0:
+                    print board.P2Cups[x], board.P1Cups[5-x]
+                    empty += 1
+
+            empty_portion = ((float(empty))/5.0) * 100
+
+            print "number of empty" + str(empty)
+            endcups_portion = (float(board.scoreCups[1])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
+            boardcups_portion = (float(player2marbles)/float(total_marbles))*100            
+            total_score = endcups_portion * .5 + boardcups_portion * .25 + empty_portion * .25
+            print "end cups 0, 1" + str(board.scoreCups)
+            print 'endcups_portion'
+            print endcups_portion
+            print 'boardcups_portion'
+            print boardcups_portion
+            print 'empty_portion'
+            print empty_portion
+            print total_score
+            return total_score
 
 
         #return Player.score(self, board)

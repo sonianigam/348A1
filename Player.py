@@ -270,8 +270,16 @@ class MancalaPlayer(Player):
                     empty += 1
         
             empty_portion = (float(empty)/5.0) * 100
-            endcups_portion = (float(board.scoreCups[0])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
-            boardcups_portion = (float(player1marbles)/float(total_marbles))*100
+
+            if board.scoreCups[0]+ board.scoreCups[1] != 0:
+                endcups_portion = (float(board.scoreCups[0])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
+            else:
+                endcups_portion = 0
+            
+            if total_marbles != 0:
+                boardcups_portion = (float(player1marbles)/float(total_marbles))*100
+            else:
+                boardcups_portion = 0
             total_score = endcups_portion * .5 + boardcups_portion * .25 + empty_portion * .25
             return total_score
         
@@ -282,14 +290,20 @@ class MancalaPlayer(Player):
                     empty += 1
 
             empty_portion = ((float(empty))/5.0) * 100
-            endcups_portion = (float(board.scoreCups[1])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
-            boardcups_portion = (float(player2marbles)/float(total_marbles))*100            
+
+            if board.scoreCups[0]+ board.scoreCups[1] != 0:
+                endcups_portion = (float(board.scoreCups[1])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
+            else:
+                endcups_portion = 0
+
+            if total_marbles != 0:
+                boardcups_portion = (float(player2marbles)/float(total_marbles))*100  
+            else:
+                boardcups_portion = 0          
             total_score = endcups_portion * .5 + boardcups_portion * .25 + empty_portion * .25
             #print board
             #print empty_portion, endcups_portion, boardcups_portion
             return total_score
-
-
         #return Player.score(self, board)
 
 

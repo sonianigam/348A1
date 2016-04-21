@@ -1,8 +1,7 @@
 # File: Player.py
 # Sonia Nigam snk088, Amar Shah ats545, Armaan Shah asf408
 # Date:
-# Group work statement: <please type the group work statement
-#      given in the pdf here>
+# Group work statement: <All group members were present and contributing during all work on this project.>
 # Defines a simple artificially intelligent player agent
 # You will define the alpha-beta pruning search algorithm
 # You will also define the score function in the MancalaPlayer class,

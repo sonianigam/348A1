@@ -237,15 +237,19 @@ class Player:
             # function.  You may use whatever search algorithm and scoring
             # algorithm you like.  Remember that your player must make
             # each move in about 10 seconds or less.
-            print "Custom player not yet implemented"
-            return -1
+            
+            val, move = self.alphaBetaMove(board, 7)
+            print "ab pruning chose move", move, " with value", val
+            return move
+        
+        
         else:
             print "Unknown player type"
             return -1
 
 
 # Note, you should change the name of this player to be your netid
-class MancalaPlayer(Player):
+class snk088(Player):
     """ Defines a player that knows how to evaluate a Mancala gameboard
         intelligently """
 

@@ -129,8 +129,7 @@ class Player:
     # and/or a different move search order.
     def alphaBetaMove(self, board, ply):
         """ Choose a move with alpha beta pruning.  Returns (score, move) """
-        #print "Alpha Beta Move not yet implemented"
-        #returns the score adn the associated moved
+        #returns the score and the associated moved
         move = -1
         alpha = -INFINITY
         beta  = INFINITY
@@ -149,7 +148,7 @@ class Player:
             #try the move
             opp = Player(self.opp, self.type, self.ply)
             s = opp.minAb(nb, ply-1, turn, alpha, beta)
-            print "move: {} score : {}".format(m, s)
+            #print "move: {} score : {}".format(m, s)
             #and see what the opponent would do next
             if s > score:
                 #if the result is better than our best score so far, save that move,score
@@ -160,20 +159,28 @@ class Player:
         return score, move
 
     def minAb(self, state, ply, turn, alpha, beta):
+        """ Find the ABpruning value for the next move for this player
+            at a given board configuation. Returns score."""
         #state of game
         #alpha, the value of the best alternative for MAX along the path of state
         # beta  ^ MIN
 
+        #termination case: check if game is over
         if state.gameOver():
             return turn.score(state)
         score = INFINITY
+        #create opponent player
         opponent = Player(self.opp, self.type, self.ply)
+        #iterate through possible legal moves given present position
         for m in state.legalMoves(self):
             if ply == 0:
                 return turn.score(state)
+            #copy board for testing
             nextBoard = deepcopy(state)
-            nextBoard.makeMove(self, m)    
+            #test move
+            nextBoard.makeMove(self, m)
             score = min(score, opponent.maxAb(nextBoard, ply-1, turn, alpha, beta))
+            #prune
             if score <= alpha:
                 # print "pruning"
                 return score
@@ -182,20 +189,28 @@ class Player:
         return score
 
     def maxAb(self, state, ply, turn, alpha, beta):
+        """ Find the ABpruning value for the next move for this player
+            at a given board configuation. Returns score."""
         #state of game
         #alpha, the value of the best alternative for MAX along the path of state
         # beta  ^ MIN
 
+        #termination case: check if game is over
         if state.gameOver():
             return turn.score(state)
         score = -INFINITY
+        #create opponent player
         opponent = Player(self.opp, self.type, self.ply)
+        #iterate through possible legal moves given present position
         for m in state.legalMoves(self):
             if ply == 0:
                 return turn.score(state)
+            #copy board for testing
             nextBoard = deepcopy(state)
+            #test move
             nextBoard.makeMove(self, m)   
             score = max(score, opponent.minAb(nextBoard, ply-1, turn, alpha, beta))
+            #prune
             if score >= beta:
                 # print "pruning"
                 return score
@@ -229,12 +244,7 @@ class Player:
             print "ab pruning chose move", move, " with value", val
             return move
         elif self.type == self.CUSTOM:
-            # TODO: Implement a custom player
-            # You should fill this in with a call to your best move choosing
-            # function.  You may use whatever search algorithm and scoring
-            # algorithm you like.  Remember that your player must make
-            # each move in about 10 seconds or less.
-            
+            #sets ply to be 7, uses ABpruning and our improved heuristic
             val, move = self.alphaBetaMove(board, 7)
             print "ab pruning chose move", move, " with value", val
             return move
@@ -265,53 +275,62 @@ class snk088(Player):
         # function.  You should replace the line below with your own code
         # for evaluating the board
         
+        #sets variable for total marbles for P1,P2, and board
         player1marbles = sum(board.P1Cups)
         player2marbles = sum(board.P2Cups)
         total_marbles = player1marbles + player2marbles
+        #initializes variable for how many empty cups on the given player's side
         empty = 0
-
-
-        if (board.scoreCups[0]+ board.scoreCups[1]) == 0:
-            return 0
-        elif self.num == 1:
-            
+        
+        #player one
+        if self.num == 1:
+            #counts how many empty cups are on player 1's side that are across from nonempty cups
             for x in range(0,6):
                 if board.P1Cups[x] == 0 and board.P2Cups[5-x] != 0:
                     empty += 1
         
+            #percentage of beneficially empty cups
             empty_portion = (float(empty)/5.0) * 100
-
+            
+            #if score cups are not empty, calculate % of the score that is Player 1's
             if board.scoreCups[0]+ board.scoreCups[1] != 0:
                 endcups_portion = (float(board.scoreCups[0])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
             else:
                 endcups_portion = 0
             
+            #if game is not over
             if total_marbles != 0:
+                #calculate % of remaining marbles on Player 1's side
                 boardcups_portion = (float(player1marbles)/float(total_marbles))*100
             else:
                 boardcups_portion = 0
+            #calculate total score to be returned: weighting each contributing factor appropriately
             total_score = endcups_portion * .5 + boardcups_portion * .25 + empty_portion * .25
             return total_score
-        
-        elif self.num == 2:
 
+        #player 2
+        elif self.num == 2:
+            #counts how many empty cups are on player 2's side that are across from nonempty cups
             for x in range(0,6):
                 if board.P2Cups[x] == 0 and board.P1Cups[5-x] != 0:
                     empty += 1
-
+        
+            #percentage of beneficially empty cups
             empty_portion = ((float(empty))/5.0) * 100
-
+            
+            #if score cups are not empty, calculate % of the score that is Player 2's
             if board.scoreCups[0]+ board.scoreCups[1] != 0:
                 endcups_portion = (float(board.scoreCups[1])/float(board.scoreCups[0]+ board.scoreCups[1]))*100
             else:
                 endcups_portion = 0
-
+            
+            #if game is not empty
             if total_marbles != 0:
-                boardcups_portion = (float(player2marbles)/float(total_marbles))*100  
+                #calculate % of remaining marbles on Player 2's side
+                boardcups_portion = (float(player2marbles)/float(total_marbles))*100
             else:
-                boardcups_portion = 0          
+                boardcups_portion = 0
+            
+            #calculate total score to be returned: weighting each contributing factor appropriately
             total_score = endcups_portion * .5 + boardcups_portion * .25 + empty_portion * .25
-            #print board
-            #print empty_portion, endcups_portion, boardcups_portion
             return total_score
-        #return Player.score(self, board)
